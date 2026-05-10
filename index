@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SubSwap — College Meal Substitution Assistant</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  :root {
+    --bg: #0f0e0c;
+    --surface: #1a1915;
+    --surface2: #222120;
+    --border: #2e2d29;
+    --accent: #e8c547;
+    --text: #f0ede6;
+    --text-muted: #7a7870;
+    --weak: #5a8a6a;
+    --moderate: #c4843a;
+    --strong: #c94f4f;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  header {
+    padding: 48px 24px 32px;
+    max-width: 700px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+  .logo span { color: var(--accent); }
+
+  .tagline {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.5;
+    max-width: 460px;
+  }
+
+  .course-badge {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 0.72rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  main {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .how-it-works {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 32px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .how-it-works strong {
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .input-section { margin-bottom: 36px; }
+
+  .input-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .select-wrapper { position: relative; }
+
+  select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 500;
+    padding: 16px 48px 16px 20px;
+    border-radius: var(--radius);
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  select:hover, select:focus { border-color: var(--accent); }
+
+  .select-arrow {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .quick-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin: 18px 0 10px;
+    display: block;
+  }
+
+  .quick-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .quick-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    padding: 6px 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .quick-btn:hover { border-color: var(--accent); color: var(--text); }
+  .quick-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 500; }
+
+  .results-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .results-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+  .results-count { font-size: 0.8rem; color: var(--text-muted); }
+
+  .empty-state {
+    text-align: center;
+    padding: 64px 24px;
+    color: var(--text-muted);
+  }
+  .empty-icon { font-size: 2.4rem; margin-bottom: 16px; opacity: 0.4; }
+  .empty-state p { font-size: 0.95rem; line-height: 1.6; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    animation: fadeIn 0.2s ease forwards;
+    opacity: 0;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .rank-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--border);
+    min-width: 32px;
+    line-height: 1;
+    padding-top: 2px;
+  }
+
+  .card-body { flex: 1; }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .ingredient-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .strength-badge {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 9px;
+    border-radius: 4px;
+  }
+  .strength-weak     { background: rgba(90,138,106,0.15); color: var(--weak);     border: 1px solid rgba(90,138,106,0.3); }
+  .strength-moderate { background: rgba(196,132,58,0.15); color: var(--moderate); border: 1px solid rgba(196,132,58,0.3); }
+  .strength-strong   { background: rgba(201,79,79,0.15);  color: var(--strong);   border: 1px solid rgba(201,79,79,0.3); }
+
+  .score-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .score-bar-bg {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+  .score-text {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    min-width: 38px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .explanation {
+    font-size: 0.87rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  footer {
+    max-width: 700px;
+    margin: 48px auto 0;
+    padding: 24px 24px 0;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Sub<span>Swap</span></div>
+  <p class="tagline">Missing an ingredient? SubSwap finds the best substitute based on what actually works in a college kitchen — ranked by how well it'll hold up.</p>
+  <span class="course-badge">MIS 432 · AI in Business · WWU</span>
+</header>
+
+<main>
+
+  <div class="how-it-works">
+    <strong>How it works</strong>
+    SubSwap uses a weighted ingredient relationship graph built around real substitution logic. Each connection is tagged as a direct swap (strong), a functional equivalent (moderate), or a same-context alternative (weak). The system scores every candidate ingredient and returns the top matches — ranked, labeled, and explained.
+  </div>
+
+  <div class="input-section">
+    <span class="input-label">I'm out of...</span>
+    <div class="select-wrapper">
+      <select id="ingredient-select" onchange="handleSelect(this.value)">
+        <option value="">— Choose an ingredient —</option>
+      </select>
+      <span class="select-arrow">▾</span>
+    </div>
+    <span class="quick-label">Quick Select</span>
+    <div class="quick-grid" id="quick-grid"></div>
+  </div>
+
+  <div id="results-section">
+    <div class="empty-state">
+      <div class="empty-icon">🥘</div>
+      <p>Select an ingredient above to see your best substitutes, ranked by how well they'll actually work.</p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span>SubSwap · College Meal Substitution Assistant</span>
+  <span>Graph-based recommendation · Client-side only</span>
+</footer>
+
+<script>
+// ─── WEIGHTS ────────────────────────────────────────────────────────────────
+// pairing = direct swap, near-identical function       → 0.9 (strong)
+// flavor  = same functional role, similar taste        → 0.5 (moderate)
+// cuisine = same context, works in a pinch             → 0.1 (weak)
+
+const WEIGHTS = { pairing: 0.9, flavor: 0.5, cuisine: 0.1 };
+
+// ─── INGREDIENTS ────────────────────────────────────────────────────────────
+const ingredients = [
+  // Proteins
+  "Eggs", "Canned Tuna", "Chicken Breast", "Ground Beef", "Beans",
+  "Chickpeas", "Lentils", "Tofu", "Peanut Butter", "Bacon",
+  "Sausage", "Ramen Noodles",
+  // Carbs & Starches
+  "Rice", "Pasta", "Bread", "Tortilla", "Oats", "Potato",
+  "Sweet Potato", "Noodles", "Flour", "Crackers",
+  // Dairy & Swaps
+  "Milk", "Butter", "Shredded Cheese", "Sour Cream", "Yogurt",
+  "Cream Cheese", "Margarine", "Parmesan",
+  // Vegetables
+  "Onion", "Garlic", "Tomato", "Spinach", "Broccoli", "Carrot",
+  "Cabbage", "Corn", "Frozen Peas", "Bell Pepper", "Mushrooms",
+  "Celery", "Zucchini", "Canned Tomatoes",
+  // Oils & Fats
+  "Vegetable Oil", "Olive Oil", "Cooking Spray",
+  // Condiments & Sauces
+  "Soy Sauce", "Hot Sauce", "Ketchup", "Mustard", "Mayo",
+  "Salsa", "Tomato Paste", "Sriracha", "Worcestershire Sauce",
+  // Acids & Aromatics
+  "Lemon", "Lime", "Vinegar", "Green Onion", "Ginger",
+  // Spices
+  "Salt", "Black Pepper", "Garlic Powder", "Onion Powder",
+  "Cumin", "Paprika", "Chili Powder", "Italian Seasoning",
+  // Pantry
+  "Broth", "Sugar", "Honey", "Coconut Milk", "Canned Beans",
+  "Canned Corn", "Peanut Butter Powder", "Bouillon Cube"
+];
+
+// ─── EDGES (substitution-only — no co-occurrence) ───────────────────────────
+// Rule: every edge must answer "if I'm out of A, would a real college cook
+//       actually reach for B as a replacement?" If no → not included.
+
+const edges = [
+  // ── Proteins ──
+  ["Eggs",           "Tofu",             "pairing"],  // scrambled tofu is a direct egg swap
+  ["Eggs",           "Yogurt",           "flavor"],   // both bind and add richness in baking
+  ["Eggs",           "Banana",           "cuisine"],  // mashed banana works as egg in baking — skip, not in list
+  ["Canned Tuna",    "Chicken Breast",   "flavor"],   // both are lean proteins in salads/sandwiches
+  ["Canned Tuna",    "Chickpeas",        "flavor"],   // chickpea "tuna" salad is a real swap
+  ["Chicken Breast", "Tofu",             "pairing"],  // both are neutral proteins that absorb seasoning
+  ["Chicken Breast", "Sausage",          "cuisine"],  // both serve as the main protein in a meal
+  ["Chicken Breast", "Canned Tuna",      "flavor"],   // already listed above, deduplicated by logic
+  ["Ground Beef",    "Sausage",          "pairing"],  // same fat/texture role in most dishes
+  ["Ground Beef",    "Lentils",          "pairing"],  // classic plant-based swap for tacos, bolognese
+  ["Ground Beef",    "Beans",            "pairing"],  // budget protein swap
+  ["Ground Beef",    "Mushrooms",        "flavor"],   // mushrooms add meaty umami in place of beef
+  ["Beans",          "Chickpeas",        "pairing"],  // near-identical legumes, swap 1:1
+  ["Beans",          "Lentils",          "pairing"],  // both are legumes, swap in soups and stews
+  ["Beans",          "Tofu",             "flavor"],   // both are plant proteins
+  ["Beans",          "Canned Beans",     "pairing"],  // dried vs canned, same thing
+  ["Chickpeas",      "Lentils",          "flavor"],   // both are legumes for curries and salads
+  ["Chickpeas",      "Canned Beans",     "pairing"],  // same legume family
+  ["Lentils",        "Canned Beans",     "flavor"],   // both are legumes
+  ["Tofu",           "Eggs",             "pairing"],  // already listed
+  ["Peanut Butter",  "Peanut Butter Powder", "pairing"], // direct swap, powder rehydrates
+  ["Bacon",          "Sausage",          "flavor"],   // both are fatty, salty, smoky proteins
+  ["Bacon",          "Worcestershire Sauce","flavor"],// both add smoky, savory depth
+  ["Ramen Noodles",  "Noodles",          "pairing"],  // direct swap
+  ["Ramen Noodles",  "Pasta",            "cuisine"],  // both are noodle-based meals
+
+  // ── Carbs & Starches ──
+  ["Rice",           "Quinoa",           "pairing"],  // not in list, skip
+  ["Rice",           "Noodles",          "cuisine"],  // both are neutral starchy bases
+  ["Rice",           "Pasta",            "cuisine"],  // both are neutral starchy bases
+  ["Rice",           "Potato",           "flavor"],   // both are filling starchy sides
+  ["Rice",           "Oats",             "cuisine"],  // both work as a grain base for bowls
+  ["Pasta",          "Noodles",          "pairing"],  // direct swap in most dishes
+  ["Pasta",          "Ramen Noodles",    "pairing"],  // already listed
+  ["Bread",          "Tortilla",         "pairing"],  // both are the wrap/base in sandwiches
+  ["Bread",          "Crackers",         "flavor"],   // both work as a base or side
+  ["Bread",          "Oats",             "cuisine"],  // both work as binders in baking
+  ["Tortilla",       "Bread",            "pairing"],  // already listed
+  ["Tortilla",       "Crackers",         "cuisine"],  // both are flat carbs for dipping or wrapping
+  ["Oats",           "Flour",            "flavor"],   // both are dry binders/thickeners
+  ["Potato",         "Sweet Potato",     "pairing"],  // near-identical swap for roasting, mashing
+  ["Flour",          "Oats",             "flavor"],   // already listed
+
+  // ── Dairy & Swaps ──
+  ["Butter",         "Margarine",        "pairing"],  // direct swap, same fat role
+  ["Butter",         "Vegetable Oil",    "flavor"],   // both are cooking fats
+  ["Butter",         "Olive Oil",        "flavor"],   // both are cooking fats
+  ["Butter",         "Cream Cheese",     "flavor"],   // both add richness and fat
+  ["Margarine",      "Butter",           "pairing"],  // already listed
+  ["Margarine",      "Vegetable Oil",    "flavor"],   // same fat role
+  ["Milk",           "Yogurt",           "flavor"],   // both are liquid dairy, swap in baking
+  ["Milk",           "Coconut Milk",     "flavor"],   // both are creamy liquid bases
+  ["Milk",           "Broth",            "cuisine"],  // broth thins sauces the same way milk does
+  ["Shredded Cheese","Parmesan",         "flavor"],   // both are salty, savory, meltable
+  ["Shredded Cheese","Cream Cheese",     "flavor"],   // both add dairy richness
+  ["Sour Cream",     "Yogurt",           "pairing"],  // near-identical tang and texture
+  ["Sour Cream",     "Cream Cheese",     "flavor"],   // both are thick and tangy
+  ["Sour Cream",     "Mayo",             "flavor"],   // both are creamy condiment bases
+  ["Yogurt",         "Sour Cream",       "pairing"],  // already listed
+  ["Yogurt",         "Cream Cheese",     "flavor"],   // both are thick, tangy, creamy
+  ["Yogurt",         "Mayo",             "flavor"],   // both work as creamy dressing bases
+  ["Cream Cheese",   "Sour Cream",       "flavor"],   // already listed
+  ["Parmesan",       "Shredded Cheese",  "flavor"],   // already listed
+
+  // ── Vegetables ──
+  ["Garlic",         "Garlic Powder",    "pairing"],  // direct fresh-to-dry swap
+  ["Garlic",         "Onion",            "flavor"],   // both are aromatics that build the same base
+  ["Garlic",         "Ginger",           "flavor"],   // both are sharp pungent aromatics
+  ["Onion",          "Garlic",           "flavor"],   // already listed
+  ["Onion",          "Green Onion",      "flavor"],   // both add onion flavor, green onion is milder
+  ["Onion",          "Celery",           "flavor"],   // both are aromatics to build a flavor base
+  ["Onion",          "Onion Powder",     "pairing"],  // direct fresh-to-dry swap
+  ["Tomato",         "Canned Tomatoes",  "pairing"],  // direct fresh vs canned swap
+  ["Tomato",         "Tomato Paste",     "flavor"],   // concentrated version, same base flavor
+  ["Tomato",         "Salsa",            "flavor"],   // salsa is tomato-based, swap in most savory dishes
+  ["Tomato",         "Bell Pepper",      "flavor"],   // both add brightness and slight sweetness
+  ["Tomato",         "Lemon",            "flavor"],   // both add acidity to a dish
+  ["Canned Tomatoes","Tomato Paste",     "pairing"],  // direct swap with water adjustment
+  ["Canned Tomatoes","Salsa",            "flavor"],   // both are tomato-based sauces
+  ["Tomato Paste",   "Ketchup",          "flavor"],   // ketchup is sweetened tomato paste
+  ["Spinach",        "Kale",             "pairing"],  // near-identical swap in cooked dishes — kale not in list, skip
+  ["Spinach",        "Cabbage",          "flavor"],   // both are mild leafy greens
+  ["Spinach",        "Frozen Peas",      "cuisine"],  // both are green vegetables added to bulk a dish
+  ["Broccoli",       "Cauliflower",      "pairing"],  // near-identical swap — cauliflower not in list, skip
+  ["Broccoli",       "Zucchini",         "flavor"],   // both are mild green vegetables
+  ["Broccoli",       "Frozen Peas",      "flavor"],   // both are green vegetables used the same way
+  ["Carrot",         "Zucchini",         "flavor"],   // both are mild vegetables to bulk out a dish
+  ["Carrot",         "Sweet Potato",     "flavor"],   // both are sweet, dense root vegetables
+  ["Cabbage",        "Spinach",          "flavor"],   // already listed
+  ["Corn",           "Frozen Peas",      "pairing"],  // both are sweet mild vegetables, same role
+  ["Corn",           "Canned Corn",      "pairing"],  // direct fresh vs canned swap
+  ["Frozen Peas",    "Corn",             "pairing"],  // already listed
+  ["Bell Pepper",    "Tomato",           "flavor"],   // already listed
+  ["Bell Pepper",    "Zucchini",         "cuisine"],  // both are mild colorful vegetables
+  ["Mushrooms",      "Zucchini",         "flavor"],   // both bulk out a dish with mild flavor
+  ["Mushrooms",      "Ground Beef",      "flavor"],   // already listed — mushrooms as meat substitute
+  ["Mushrooms",      "Soy Sauce",        "flavor"],   // both are umami-forward, one can replace the other's depth
+  ["Celery",         "Onion",            "flavor"],   // already listed
+  ["Celery",         "Green Onion",      "flavor"],   // both are mild aromatics
+  ["Zucchini",       "Carrot",           "flavor"],   // already listed
+  ["Canned Corn",    "Corn",             "pairing"],  // already listed
+
+  // ── Oils & Fats ──
+  ["Vegetable Oil",  "Olive Oil",        "pairing"],  // both are neutral cooking oils
+  ["Vegetable Oil",  "Cooking Spray",    "pairing"],  // both prevent sticking, same role
+  ["Vegetable Oil",  "Butter",           "flavor"],   // already listed
+  ["Olive Oil",      "Vegetable Oil",    "pairing"],  // already listed
+  ["Olive Oil",      "Butter",           "flavor"],   // already listed
+  ["Cooking Spray",  "Vegetable Oil",    "pairing"],  // already listed
+
+  // ── Condiments & Sauces ──
+  ["Soy Sauce",      "Worcestershire Sauce","flavor"],// both are salty, umami-rich liquids
+  ["Soy Sauce",      "Salt",             "flavor"],   // soy sauce is essentially liquid salt
+  ["Soy Sauce",      "Mushrooms",        "flavor"],   // already listed
+  ["Soy Sauce",      "Bouillon Cube",    "flavor"],   // both add deep savory saltiness
+  ["Hot Sauce",      "Sriracha",         "pairing"],  // direct heat swap
+  ["Hot Sauce",      "Chili Powder",     "flavor"],   // both add heat to a dish
+  ["Sriracha",       "Hot Sauce",        "pairing"],  // already listed
+  ["Sriracha",       "Chili Powder",     "flavor"],   // both add heat
+  ["Ketchup",        "Tomato Paste",     "flavor"],   // already listed
+  ["Ketchup",        "Salsa",            "flavor"],   // both are tomato-based condiments
+  ["Mustard",        "Vinegar",          "flavor"],   // both add sharp acidity
+  ["Mayo",           "Sour Cream",       "flavor"],   // already listed
+  ["Mayo",           "Yogurt",           "flavor"],   // already listed
+  ["Salsa",          "Canned Tomatoes",  "flavor"],   // already listed
+  ["Salsa",          "Tomato Paste",     "flavor"],   // both are tomato-based
+  ["Worcestershire Sauce","Soy Sauce",   "flavor"],   // already listed
+  ["Worcestershire Sauce","Bacon",       "flavor"],   // already listed
+
+  // ── Acids & Aromatics ──
+  ["Lemon",          "Lime",             "pairing"],  // direct citrus swap
+  ["Lemon",          "Vinegar",          "flavor"],   // both add sharp acidity
+  ["Lemon",          "Tomato",           "flavor"],   // already listed
+  ["Lime",           "Lemon",            "pairing"],  // already listed
+  ["Lime",           "Vinegar",          "flavor"],   // same acidity logic
+  ["Vinegar",        "Lemon",            "flavor"],   // already listed
+  ["Vinegar",        "Mustard",          "flavor"],   // already listed
+  ["Green Onion",    "Onion",            "flavor"],   // already listed
+  ["Green Onion",    "Celery",           "flavor"],   // already listed
+  ["Ginger",         "Garlic",           "flavor"],   // already listed
+
+  // ── Spices ──
+  ["Garlic Powder",  "Garlic",           "pairing"],  // already listed
+  ["Garlic Powder",  "Onion Powder",     "flavor"],   // both are dry aromatics, same depth
+  ["Onion Powder",   "Onion",            "pairing"],  // already listed
+  ["Onion Powder",   "Garlic Powder",    "flavor"],   // already listed
+  ["Cumin",          "Chili Powder",     "flavor"],   // cumin is a primary component of chili powder
+  ["Paprika",        "Chili Powder",     "flavor"],   // both add color and mild heat
+  ["Chili Powder",   "Cumin",            "flavor"],   // already listed
+  ["Chili Powder",   "Hot Sauce",        "flavor"],   // already listed
+  ["Salt",           "Soy Sauce",        "flavor"],   // already listed
+  ["Salt",           "Bouillon Cube",    "flavor"],   // both add saltiness and savory depth
+  ["Italian Seasoning","Black Pepper",   "cuisine"],  // both are general dry seasoning
+  ["Bouillon Cube",  "Broth",            "pairing"],  // bouillon dissolved in water = broth
+  ["Bouillon Cube",  "Soy Sauce",        "flavor"],   // already listed
+  ["Bouillon Cube",  "Salt",             "flavor"],   // already listed
+
+  // ── Pantry Staples ──
+  ["Broth",          "Bouillon Cube",    "pairing"],  // already listed
+  ["Broth",          "Coconut Milk",     "cuisine"],  // both are liquid bases for soups and sauces
+  ["Broth",          "Milk",             "cuisine"],  // already listed
+  ["Sugar",          "Honey",            "pairing"],  // direct sweetener swap
+  ["Honey",          "Sugar",            "pairing"],  // already listed
+  ["Coconut Milk",   "Milk",             "flavor"],   // already listed
+  ["Coconut Milk",   "Broth",            "cuisine"],  // already listed
+  ["Peanut Butter Powder","Peanut Butter","pairing"], // already listed
+];
+
+// ─── BUILD GRAPH ────────────────────────────────────────────────────────────
+const graph = {};
+ingredients.forEach(i => { graph[i] = {}; });
+
+edges.forEach(([a, b, type]) => {
+  if (!graph[a] || !graph[b]) return; // skip if ingredient not in list
+  if (a === b) return;
+  if (!graph[a][b]) graph[a][b] = [];
+  if (!graph[b][a]) graph[b][a] = [];
+  if (!graph[a][b].includes(type)) graph[a][b].push(type);
+  if (!graph[b][a].includes(type)) graph[b][a].push(type);
+});
+
+function scoreSubstitute(target, candidate) {
+  const rels = graph[target]?.[candidate];
+  if (!rels || rels.length === 0) return 0;
+  return rels.reduce((sum, r) => sum + (WEIGHTS[r] || 0), 0);
+}
+
+function getStrengthLabel(score) {
+  if (score >= 0.8) return "strong";
+  if (score >= 0.4) return "moderate";
+  return "weak";
+}
+
+function buildExplanation(target, candidate, rels) {
+  if (!rels || rels.length === 0) return "";
+  const parts = [];
+  if (rels.includes("pairing")) parts.push("they serve the same functional role in the dish");
+  if (rels.includes("flavor"))  parts.push("they share a similar flavor profile");
+  if (rels.includes("cuisine")) parts.push("they appear in the same cooking contexts");
+  const joined = parts.length === 1
+    ? parts[0]
+    : parts.slice(0, -1).join(", ") + " and " + parts[parts.length - 1];
+  return `${candidate} works as a substitute for ${target} because ${joined}.`;
+}
+
+function getRecommendations(target) {
+  return ingredients
+    .filter(i => i !== target)
+    .map(candidate => ({
+      name: candidate,
+      score: scoreSubstitute(target, candidate),
+      rels: graph[target]?.[candidate] || []
+    }))
+    .filter(r => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+}
+
+// ─── UI ─────────────────────────────────────────────────────────────────────
+const selectEl  = document.getElementById('ingredient-select');
+const quickGrid = document.getElementById('quick-grid');
+
+const sorted = [...ingredients].sort();
+
+sorted.forEach(ing => {
+  const opt = document.createElement('option');
+  opt.value = ing; opt.textContent = ing;
+  selectEl.appendChild(opt);
+});
+
+ingredients.forEach(ing => {
+  const btn = document.createElement('button');
+  btn.className = 'quick-btn';
+  btn.textContent = ing;
+  btn.onclick = () => {
+    selectEl.value = ing;
+    document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderResults(ing);
+  };
+  quickGrid.appendChild(btn);
+});
+
+function handleSelect(val) {
+  document.querySelectorAll('.quick-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === val);
+  });
+  if (val) renderResults(val);
+}
+
+function renderResults(target) {
+  const section = document.getElementById('results-section');
+  const recs = getRecommendations(target);
+
+  if (recs.length === 0) {
+    section.innerHTML = `<div class="empty-state"><div class="empty-icon">🤔</div><p>No substitutes found for <strong>${target}</strong> in the current dataset.</p></div>`;
+    return;
+  }
+
+  const maxScore = recs[0].score;
+  let html = `
+    <div class="results-header">
+      <span class="results-title">Best substitutes for ${target}</span>
+      <span class="results-count">${recs.length} result${recs.length !== 1 ? 's' : ''}</span>
+    </div>`;
+
+  recs.forEach((rec, i) => {
+    const strength = getStrengthLabel(rec.score);
+    const pct      = Math.round((rec.score / maxScore) * 100);
+    const expl     = buildExplanation(target, rec.name, rec.rels);
+    html += `
+      <div class="result-card" style="animation-delay:${i * 0.06}s">
+        <div class="rank-number">${i + 1}</div>
+        <div class="card-body">
+          <div class="card-top">
+            <span class="ingredient-name">${rec.name}</span>
+            <span class="strength-badge strength-${strength}">${strength}</span>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar-bg"><div class="score-bar-fill" style="width:${pct}%"></div></div>
+            <span class="score-text">${rec.score.toFixed(2)}</span>
+          </div>
+          <p class="explanation">${expl}</p>
+        </div>
+      </div>`;
+  });
+
+  section.innerHTML = html;
+}
+</script>
+</body>
+</html>
